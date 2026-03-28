@@ -5,6 +5,9 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-latest
@@ -24,6 +27,19 @@ jobs:
 
       - name: Install EAS CLI
         run: npm install -g eas-cli
+
+      - name: Set build version
+        run: |
+          BUILD_NUM=${{ github.run_number }}
+          # Update buildNumber in app.json
+          python3 -c "
+          import json
+          with open('app.json') as f: d = json.load(f)
+          d['expo']['ios']['buildNumber'] = str($BUILD_NUM)
+          d['expo']['version'] = '1.0.$BUILD_NUM'
+          with open('app.json', 'w') as f: json.dump(d, f, indent=2)
+          print('Version set to 1.0.$BUILD_NUM, build $BUILD_NUM')
+          "
 
       - name: Run Expo Prebuild (generate native iOS project)
         run: npx expo prebuild --platform ios --clean
@@ -219,7 +235,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          IPA_PATH=$(ls "$RUNNER_TEMP/export/"*.ipa)
+          IPA_SRC=$(ls "$RUNNER_TEMP/export/"*.ipa)
+          IPA_NAME="QRReader-v1.0.${{ github.run_number }}.ipa"
+          cp "$IPA_SRC" "$RUNNER_TEMP/$IPA_NAME"
 
           # Delete existing 'latest' release if exists
           gh release delete latest --repo ${{ github.repository }} --yes 2>/dev/null || true
@@ -228,12 +246,12 @@ jobs:
           # Create new release
           gh release create latest \
             --repo ${{ github.repository }} \
-            --title "QR Reader build #${{ github.run_number }}" \
-            --notes "Automatický build #${{ github.run_number }} — $(date '+%Y-%m-%d %H:%M')" \
+            --title "QR Reader v1.0.${{ github.run_number }}" \
+            --notes "Build #${{ github.run_number }} — $(date '+%Y-%m-%d %H:%M')" \
             --latest \
-            "$IPA_PATH#QRReader.ipa"
+            "$RUNNER_TEMP/$IPA_NAME"
 
           echo ""
           echo "=== PŘÍMÝ ODKAZ NA IPA ==="
-          echo "https://github.com/${{ github.repository }}/releases/download/latest/QRReader.ipa"
+          echo "https://github.com/${{ github.repository }}/releases/download/latest/$IPA_NAME"
           echo "=========================="
