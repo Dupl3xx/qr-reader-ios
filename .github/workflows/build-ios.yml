@@ -211,8 +211,29 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: QRReader-iOS-${{ github.run_number }}
-          path: |
-            ${{ runner.temp }}/export/*.ipa
-            ${{ runner.temp }}/export/*.app
+          path: ${{ runner.temp }}/export/*.ipa
           retention-days: 30
           if-no-files-found: warn
+
+      - name: Create GitHub Release with IPA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          IPA_PATH=$(ls "$RUNNER_TEMP/export/"*.ipa)
+
+          # Delete existing 'latest' release if exists
+          gh release delete latest --repo ${{ github.repository }} --yes 2>/dev/null || true
+          git push origin :refs/tags/latest 2>/dev/null || true
+
+          # Create new release
+          gh release create latest \
+            --repo ${{ github.repository }} \
+            --title "QR Reader build #${{ github.run_number }}" \
+            --notes "Automatický build #${{ github.run_number }} — $(date '+%Y-%m-%d %H:%M')" \
+            --latest \
+            "$IPA_PATH#QRReader.ipa"
+
+          echo ""
+          echo "=== PŘÍMÝ ODKAZ NA IPA ==="
+          echo "https://github.com/${{ github.repository }}/releases/download/latest/QRReader.ipa"
+          echo "=========================="
