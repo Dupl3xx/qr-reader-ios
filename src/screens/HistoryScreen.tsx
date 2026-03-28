@@ -18,6 +18,7 @@ import * as Sharing from 'expo-sharing';
 import { HistoryItem, getHistory, deleteHistoryItem, clearHistory } from '../utils/storage';
 import { Colors, getTypeColor, getTypeIcon } from '../utils/theme';
 import { useTheme } from '../utils/ThemeContext';
+import { useLayout } from '../utils/layout';
 import { RootStackParamList } from '../../App';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Main'>;
@@ -27,6 +28,7 @@ export default function HistoryScreen() {
   const navigation = useNavigation<Nav>();
   const { scheme } = useTheme();
   const colors = Colors[scheme];
+  const { maxContentWidth } = useLayout();
   const [items, setItems] = useState<HistoryItem[]>([]);
 
   useFocusEffect(
@@ -160,10 +162,10 @@ export default function HistoryScreen() {
                 ))}
               </View>
             )}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={[styles.list, { maxWidth: maxContentWidth, width: '100%', alignSelf: 'center' }]}
             showsVerticalScrollIndicator={false}
           />
-          <View style={styles.bottomBar}>
+          <View style={[styles.bottomBar, { maxWidth: maxContentWidth, width: '100%', alignSelf: 'center' }]}>
             <TouchableOpacity style={styles.clearBtn} onPress={handleClear}>
               <Ionicons name="trash-outline" size={16} color={colors.accentRed} />
               <Text style={[styles.clearBtnText, { color: colors.accentRed }]}>{t('history.clearAll')}</Text>

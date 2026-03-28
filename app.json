@@ -13,7 +13,7 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.ondrejlevy.qrreader.RW4Q5ZGHM2",
       "buildNumber": "2",
       "infoPlist": {

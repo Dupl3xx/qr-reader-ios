@@ -8,7 +8,6 @@ import {
   Alert,
   Linking,
   ActivityIndicator,
-  Dimensions,
 } from 'react-native';
 
 import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
@@ -25,16 +24,15 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { parseQR } from '../utils/qrParser';
 import { addToHistory, getSettings } from '../utils/storage';
+import { useLayout } from '../utils/layout';
 import { RootStackParamList } from '../../App';
-
-const { width } = Dimensions.get('window');
-const SCANNER_SIZE = width * 0.72;
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Main'>;
 
 export default function ScannerScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
+  const { scannerSize } = useLayout();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>('back');
   const [torchOn, setTorchOn] = useState(false);
@@ -49,7 +47,7 @@ export default function ScannerScreen() {
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(scanLineAnim, {
-          toValue: SCANNER_SIZE - 4,
+          toValue: scannerSize - 4,
           duration: 2200,
           useNativeDriver: true,
         }),
@@ -62,7 +60,7 @@ export default function ScannerScreen() {
     );
     loop.start();
     return () => loop.stop();
-  }, []);
+  }, [scannerSize]);
 
   // Re-enable scanning on focus
   useFocusEffect(
@@ -222,8 +220,8 @@ export default function ScannerScreen() {
 
         {/* Scanner frame area */}
         <View style={styles.middleRow}>
-          <View style={styles.sideDark} />
-          <View style={styles.scannerFrame}>
+          <View style={[styles.sideDark, { height: scannerSize }]} />
+          <View style={[styles.scannerFrame, { width: scannerSize, height: scannerSize }]}>
             {/* Corner brackets */}
             <View style={[styles.corner, styles.cornerTL]} />
             <View style={[styles.corner, styles.cornerTR]} />
@@ -238,7 +236,7 @@ export default function ScannerScreen() {
               ]}
             />
           </View>
-          <View style={styles.sideDark} />
+          <View style={[styles.sideDark, { height: scannerSize }]} />
         </View>
 
         {/* Bottom area */}
@@ -309,11 +307,9 @@ const styles = StyleSheet.create({
   },
 
   middleRow: { flexDirection: 'row', alignItems: 'center' },
-  sideDark: { flex: 1, height: SCANNER_SIZE, backgroundColor: DARK },
+  sideDark: { flex: 1, backgroundColor: DARK },
 
   scannerFrame: {
-    width: SCANNER_SIZE,
-    height: SCANNER_SIZE,
     overflow: 'hidden',
   },
 

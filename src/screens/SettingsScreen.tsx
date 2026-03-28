@@ -15,6 +15,7 @@ import Constants from 'expo-constants';
 
 import { Colors } from '../utils/theme';
 import { useTheme } from '../utils/ThemeContext';
+import { useLayout } from '../utils/layout';
 import { AppSettings, getSettings, saveSettings } from '../utils/storage';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 
@@ -22,6 +23,7 @@ export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { scheme, setDarkMode } = useTheme();
   const colors = Colors[scheme];
+  const { maxContentWidth } = useLayout();
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [langPickerVisible, setLangPickerVisible] = useState(false);
 
@@ -53,7 +55,7 @@ export default function SettingsScreen() {
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { maxWidth: maxContentWidth, width: '100%', alignSelf: 'center' }]}
       showsVerticalScrollIndicator={false}
     >
       {/* Language */}

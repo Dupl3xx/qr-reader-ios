@@ -17,6 +17,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 
 import { Colors, getTypeColor, getTypeIcon } from '../utils/theme';
 import { useTheme } from '../utils/ThemeContext';
+import { useLayout } from '../utils/layout';
 import { RootStackParamList } from '../../App';
 
 type ResultRoute = RouteProp<RootStackParamList, 'Result'>;
@@ -28,6 +29,7 @@ export default function ResultScreen() {
   const { parsedQR } = route.params;
   const { scheme } = useTheme();
   const colors = Colors[scheme];
+  const { maxContentWidth } = useLayout();
 
   const [copied, setCopied] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0.85)).current;
@@ -95,6 +97,7 @@ export default function ResultScreen() {
       ]}
     >
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={{ maxWidth: maxContentWidth, width: '100%', alignSelf: 'center' }}>
         {/* Type badge */}
         <View style={[styles.typeBadge, { backgroundColor: typeColor + '20' }]}>
           <Ionicons name={getPrimaryActionIcon() as any} size={18} color={typeColor} />
@@ -193,6 +196,7 @@ export default function ResultScreen() {
           <Ionicons name="qr-code-outline" size={18} color={colors.accent} />
           <Text style={[styles.scanAgainText, { color: colors.accent }]}>{t('result.scanAgain')}</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     </Animated.View>
   );
