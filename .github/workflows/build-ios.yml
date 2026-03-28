@@ -1,0 +1,189 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Run Expo Prebuild (generate native iOS project)
+        run: npx expo prebuild --platform ios --clean
+        env:
+          EXPO_NO_TELEMETRY: 1
+
+      - name: Install Apple signing certificate
+        env:
+          P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          CERT_PATH="$RUNNER_TEMP/cert.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+
+          # Decode p12 from base64
+          echo -n "$P12_BASE64" | base64 --decode -o "$CERT_PATH"
+
+          # Create temp keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Import cert
+          security import "$CERT_PATH" \
+            -P "$P12_PASSWORD" \
+            -A -t cert -f pkcs12 \
+            -k "$KEYCHAIN_PATH"
+
+          # Make cert accessible
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" \
+            "$KEYCHAIN_PATH"
+
+          # Add to search path
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+          # Verify cert is installed
+          echo "Installed certificates:"
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+
+      - name: Install provisioning profile
+        env:
+          PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+        run: |
+          PP_PATH="$RUNNER_TEMP/profile.mobileprovision"
+          echo -n "$PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/21f42260-62dd-4dd7-8363-3fbb9373c832.mobileprovision"
+          echo "Provisioning profile installed: 21f42260-62dd-4dd7-8363-3fbb9373c832"
+
+      - name: Fix Xcode signing settings (use iPhone Developer)
+        run: |
+          PBXPROJ="ios/QRReader.xcodeproj/project.pbxproj"
+
+          # Force iPhone Developer signing identity
+          sed -i '' 's/CODE_SIGN_IDENTITY = "iPhone Distribution";/CODE_SIGN_IDENTITY = "iPhone Developer";/g' "$PBXPROJ"
+          sed -i '' 's/CODE_SIGN_IDENTITY = "Apple Distribution";/CODE_SIGN_IDENTITY = "iPhone Developer";/g' "$PBXPROJ"
+          sed -i '' 's/CODE_SIGN_IDENTITY = "iOS Distribution";/CODE_SIGN_IDENTITY = "iPhone Developer";/g' "$PBXPROJ"
+
+          # Force manual signing
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' "$PBXPROJ"
+
+          echo "Signing settings after fix:"
+          grep -E "CODE_SIGN|PROVISIONING_PROFILE|DEVELOPMENT_TEAM" "$PBXPROJ" | sort -u
+
+      - name: Set provisioning profile UUID in Xcode project
+        run: |
+          PBXPROJ="ios/QRReader.xcodeproj/project.pbxproj"
+          PROFILE_UUID="21f42260-62dd-4dd7-8363-3fbb9373c832"
+          BUNDLE_ID="com.google.ios.youtube.RW4Q5ZGHM2"
+          TEAM_ID="RW4Q5ZGHM2"
+
+          # Set provisioning profile specifier
+          python3 - <<EOF
+          import re
+
+          with open("$PBXPROJ", "r") as f:
+              content = f.read()
+
+          # Set PROVISIONING_PROFILE_SPECIFIER
+          content = re.sub(
+              r'PROVISIONING_PROFILE_SPECIFIER = "[^"]*";',
+              'PROVISIONING_PROFILE_SPECIFIER = "$PROFILE_UUID";',
+              content
+          )
+
+          # Add if not present in Release config
+          if "PROVISIONING_PROFILE_SPECIFIER" not in content:
+              content = content.replace(
+                  'CODE_SIGN_IDENTITY = "iPhone Developer";',
+                  'CODE_SIGN_IDENTITY = "iPhone Developer";\n\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "$PROFILE_UUID";'
+              )
+
+          with open("$PBXPROJ", "w") as f:
+              f.write(content)
+
+          print("Updated PROVISIONING_PROFILE_SPECIFIER to $PROFILE_UUID")
+          EOF
+
+      - name: Build iOS app with xcodebuild
+        run: |
+          cd ios
+
+          xcodebuild archive \
+            -workspace QRReader.xcworkspace \
+            -scheme QRReader \
+            -configuration Debug \
+            -archivePath "$RUNNER_TEMP/QRReader.xcarchive" \
+            -destination "generic/platform=iOS" \
+            CODE_SIGN_IDENTITY="iPhone Developer" \
+            CODE_SIGN_STYLE="Manual" \
+            DEVELOPMENT_TEAM="RW4Q5ZGHM2" \
+            PROVISIONING_PROFILE="21f42260-62dd-4dd7-8363-3fbb9373c832" \
+            PRODUCT_BUNDLE_IDENTIFIER="com.google.ios.youtube.RW4Q5ZGHM2" \
+            -allowProvisioningUpdates \
+            | xcpretty
+
+      - name: Export IPA from archive
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>development</string>
+            <key>teamID</key>
+            <string>RW4Q5ZGHM2</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>signingCertificate</key>
+            <string>iPhone Developer</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.google.ios.youtube.RW4Q5ZGHM2</key>
+              <string>21f42260-62dd-4dd7-8363-3fbb9373c832</string>
+            </dict>
+            <key>compileBitcode</key>
+            <false/>
+            <key>stripSwiftSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          EOF
+
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/QRReader.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist"
+
+          ls "$RUNNER_TEMP/export/"
+
+      - name: Upload IPA as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QRReader-iOS-${{ github.run_number }}
+          path: |
+            ${{ runner.temp }}/export/*.ipa
+            ${{ runner.temp }}/export/*.app
+          retention-days: 30
+          if-no-files-found: warn

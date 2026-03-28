@@ -1,0 +1,28 @@
+build:
+  name: QR Reader Development Build
+  steps:
+    - eas/checkout
+    - eas/install_node_modules
+    - eas/resolve_apple_team_id_from_credentials:
+        id: resolved_apple_team_id
+    - eas/prebuild:
+        inputs:
+          clean: false
+    - run:
+        name: Fix code signing identity
+        command: |
+          cd ios
+          # Replace iOS Distribution with iPhone Developer in pbxproj
+          sed -i 's/CODE_SIGN_IDENTITY = "iPhone Distribution";/CODE_SIGN_IDENTITY = "iPhone Developer";/g' QRReader.xcodeproj/project.pbxproj
+          sed -i 's/CODE_SIGN_IDENTITY = "Apple Distribution";/CODE_SIGN_IDENTITY = "iPhone Developer";/g' QRReader.xcodeproj/project.pbxproj
+          sed -i 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Distribution";/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";/g' QRReader.xcodeproj/project.pbxproj
+          # Ensure manual signing
+          sed -i 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' QRReader.xcodeproj/project.pbxproj
+          echo "Fixed code signing settings:"
+          grep "CODE_SIGN_IDENTITY\|CODE_SIGN_STYLE" QRReader.xcodeproj/project.pbxproj | sort -u
+    - eas/install_credentials_ios:
+        inputs:
+          apple_team_id: ${ steps.resolved_apple_team_id.apple_team_id }
+    - eas/run_fastlane:
+        inputs:
+          credentials: ${ steps.resolved_apple_team_id }
