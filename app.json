@@ -2,7 +2,7 @@
   "expo": {
     "name": "QR Reader",
     "slug": "qr-reader-ondrej",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.google.ios.youtube.RW4Q5ZGHM2",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "Camera is needed to scan QR codes.",
         "NSPhotoLibraryUsageDescription": "Photo library access is needed to scan QR codes from images.",

@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Swipeable } from 'react-native-gesture-handler';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 import { HistoryItem, getHistory, deleteHistoryItem, clearHistory } from '../utils/storage';
 import { Colors, getTypeColor, getTypeIcon } from '../utils/theme';
@@ -54,6 +56,20 @@ export default function HistoryScreen() {
         },
       ]
     );
+  };
+
+  const handleExport = async () => {
+    if (items.length === 0) return;
+    const lines = items.map(item => {
+      const date = new Date(item.scannedAt);
+      const dateStr = date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+      const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      return `[${dateStr} ${timeStr}] ${item.parsedQR.type.toUpperCase()}: ${item.parsedQR.raw}`;
+    });
+    const content = lines.join('\n');
+    const filePath = FileSystem.documentDirectory + 'qr_history.txt';
+    await FileSystem.writeAsStringAsync(filePath, content, { encoding: FileSystem.EncodingType.UTF8 });
+    await Sharing.shareAsync(filePath, { mimeType: 'text/plain', dialogTitle: t('history.exportAll') });
   };
 
   const formatDate = (ts: number): string => {
@@ -147,10 +163,17 @@ export default function HistoryScreen() {
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
           />
-          <TouchableOpacity style={styles.clearBtn} onPress={handleClear}>
-            <Ionicons name="trash-outline" size={16} color={colors.accentRed} />
-            <Text style={[styles.clearBtnText, { color: colors.accentRed }]}>{t('history.clearAll')}</Text>
-          </TouchableOpacity>
+          <View style={styles.bottomBar}>
+            <TouchableOpacity style={styles.clearBtn} onPress={handleClear}>
+              <Ionicons name="trash-outline" size={16} color={colors.accentRed} />
+              <Text style={[styles.clearBtnText, { color: colors.accentRed }]}>{t('history.clearAll')}</Text>
+            </TouchableOpacity>
+            <View style={[styles.divider, { backgroundColor: colors.textTertiary }]} />
+            <TouchableOpacity style={styles.clearBtn} onPress={handleExport}>
+              <Ionicons name="share-outline" size={16} color={colors.accent} />
+              <Text style={[styles.clearBtnText, { color: colors.accent }]}>{t('history.exportAll')}</Text>
+            </TouchableOpacity>
+          </View>
         </>
       )}
     </View>
@@ -207,12 +230,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
+  bottomBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+  },
   clearBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
+    paddingHorizontal: 20,
     gap: 6,
   },
   clearBtnText: { fontSize: 15, fontWeight: '500' },
+  divider: { width: 1, height: 20, opacity: 0.3 },
 });

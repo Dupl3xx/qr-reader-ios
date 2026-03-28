@@ -66,6 +66,7 @@ export default {
     yesterday: 'Včera',
     deleteItem: 'Zmazať',
     noMore: 'Koniec histórie',
+    exportAll: 'Exportovať všetko',
   },
 
   settings: {

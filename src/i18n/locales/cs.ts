@@ -72,6 +72,7 @@ export default {
     yesterday: 'Včera',
     deleteItem: 'Smazat',
     noMore: 'Konec historie',
+    exportAll: 'Exportovat vše',
   },
 
   // Settings screen

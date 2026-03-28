@@ -66,6 +66,7 @@ export default {
     yesterday: 'Wczoraj',
     deleteItem: 'Usuń',
     noMore: 'Koniec historii',
+    exportAll: 'Eksportuj wszystko',
   },
 
   settings: {
