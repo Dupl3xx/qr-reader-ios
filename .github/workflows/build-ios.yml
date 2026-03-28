@@ -87,10 +87,17 @@ jobs:
           PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
         run: |
           PP_PATH="$RUNNER_TEMP/profile.mobileprovision"
-          echo -n "$PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
+          echo "$PROFILE_BASE64" | base64 -D -o "$PP_PATH"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/b98cb21f-965a-40d9-ac68-2cfb3d90f434.mobileprovision"
-          echo "Provisioning profile installed: b98cb21f-965a-40d9-ac68-2cfb3d90f434"
+
+          # Read UUID from inside the profile
+          PROFILE_UUID=$(security cms -D -i "$PP_PATH" 2>/dev/null | plutil -extract UUID raw - 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(security cms -D -i "$PP_PATH") 2>/dev/null || \
+            grep -aA1 '<key>UUID</key>' "$PP_PATH" | grep '<string>' | sed 's/.*<string>\(.*\)<\/string>.*/\1/' | tr -d '[:space:]')
+
+          echo "Profile UUID detected: $PROFILE_UUID"
+          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
+          echo "Provisioning profile installed: ${PROFILE_UUID}"
 
       - name: Fix Xcode signing settings (use iPhone Developer)
         run: |
