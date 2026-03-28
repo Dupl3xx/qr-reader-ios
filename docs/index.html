@@ -52,6 +52,23 @@
       line-height: 1.5;
       margin-top: 8px;
     }
+    .qr-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 24px;
+    }
+    .qr-img {
+      width: 180px;
+      height: 180px;
+      border-radius: 16px;
+      border: 2px solid #38383A;
+    }
+    .qr-label {
+      color: #636366;
+      font-size: 12px;
+      margin-top: 10px;
+    }
     .divider { width: 60px; height: 1px; background: #38383A; margin: 32px 0; }
     .features {
       display: flex;
@@ -89,6 +106,15 @@
     Nainstalovat
   </a>
   <div class="note">Otevři tuto stránku na iPhonu v Safari a klepni na Nainstalovat</div>
+
+  <div class="qr-wrap">
+    <img
+      class="qr-img"
+      src="https://api.qrserver.com/v1/create-qr-code/?data=itms-services%3A%2F%2F%3Faction%3Ddownload-manifest%26url%3Dhttps%3A%2F%2Fdupl3xx.github.io%2Fqr-reader-ios%2Fmanifest.plist&size=220x220&bgcolor=1c1c1e&color=ffffff&qzone=2"
+      alt="QR kód pro instalaci"
+    />
+    <div class="qr-label">nebo naskenuj QR kódem</div>
+  </div>
 
   <div class="divider"></div>
 
