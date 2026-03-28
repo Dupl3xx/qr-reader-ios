@@ -89,8 +89,8 @@ jobs:
           PP_PATH="$RUNNER_TEMP/profile.mobileprovision"
           echo -n "$PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/21f42260-62dd-4dd7-8363-3fbb9373c832.mobileprovision"
-          echo "Provisioning profile installed: 21f42260-62dd-4dd7-8363-3fbb9373c832"
+          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/1db3201a-b13a-4cf9-af7b-32a989bf68a3.mobileprovision"
+          echo "Provisioning profile installed: 1db3201a-b13a-4cf9-af7b-32a989bf68a3"
 
       - name: Fix Xcode signing settings (use iPhone Developer)
         run: |
@@ -110,7 +110,7 @@ jobs:
       - name: Set provisioning profile UUID in Xcode project
         run: |
           PBXPROJ="ios/QRReader.xcodeproj/project.pbxproj"
-          PROFILE_UUID="21f42260-62dd-4dd7-8363-3fbb9373c832"
+          PROFILE_UUID="1db3201a-b13a-4cf9-af7b-32a989bf68a3"
           BUNDLE_ID="com.google.ios.youtube.RW4Q5ZGHM2"
           TEAM_ID="RW4Q5ZGHM2"
 
@@ -160,7 +160,7 @@ jobs:
             CODE_SIGN_IDENTITY="iPhone Developer" \
             CODE_SIGN_STYLE="Manual" \
             DEVELOPMENT_TEAM="RW4Q5ZGHM2" \
-            PROVISIONING_PROFILE="21f42260-62dd-4dd7-8363-3fbb9373c832" \
+            PROVISIONING_PROFILE="1db3201a-b13a-4cf9-af7b-32a989bf68a3" \
             PRODUCT_BUNDLE_IDENTIFIER="com.google.ios.youtube.RW4Q5ZGHM2" \
             -allowProvisioningUpdates 2>&1 | tee /tmp/xcodebuild.log
           BUILD_EXIT=${PIPESTATUS[0]}
@@ -206,7 +206,7 @@ jobs:
             <key>provisioningProfiles</key>
             <dict>
               <key>com.google.ios.youtube.RW4Q5ZGHM2</key>
-              <string>21f42260-62dd-4dd7-8363-3fbb9373c832</string>
+              <string>1db3201a-b13a-4cf9-af7b-32a989bf68a3</string>
             </dict>
             <key>compileBitcode</key>
             <false/>
