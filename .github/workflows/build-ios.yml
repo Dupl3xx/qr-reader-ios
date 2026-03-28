@@ -130,7 +130,6 @@ jobs:
 
       - name: Build iOS app with xcodebuild
         run: |
-          set -euo pipefail
           ARCHIVE_PATH="$RUNNER_TEMP/QRReader.xcarchive"
 
           echo "Starting xcodebuild archive..."
@@ -147,19 +146,31 @@ jobs:
             DEVELOPMENT_TEAM="RW4Q5ZGHM2" \
             PROVISIONING_PROFILE="21f42260-62dd-4dd7-8363-3fbb9373c832" \
             PRODUCT_BUNDLE_IDENTIFIER="com.google.ios.youtube.RW4Q5ZGHM2" \
-            -allowProvisioningUpdates 2>&1 | tee /tmp/xcodebuild.log | tail -30
+            -allowProvisioningUpdates 2>&1 | tee /tmp/xcodebuild.log
+          BUILD_EXIT=${PIPESTATUS[0]}
 
-          echo "Build exit code: ${PIPESTATUS[0]}"
+          echo "Build exit code: $BUILD_EXIT"
 
-          if [ ! -d "$ARCHIVE_PATH" ]; then
-            echo "ERROR: Archive not found at $ARCHIVE_PATH"
-            echo "Last 50 lines of build log:"
-            tail -50 /tmp/xcodebuild.log
+          if [ $BUILD_EXIT -ne 0 ] || [ ! -d "$ARCHIVE_PATH" ]; then
+            echo "ERROR: Build failed (exit $BUILD_EXIT)"
+            echo "=== ERRORS FROM BUILD LOG ==="
+            grep -E "error:|fatal error:|Build FAILED" /tmp/xcodebuild.log | grep -v "^note:" | head -50 || true
+            echo "=== LAST 30 LINES ==="
+            tail -30 /tmp/xcodebuild.log
             exit 1
           fi
 
           echo "Archive created successfully at $ARCHIVE_PATH"
           ls -la "$ARCHIVE_PATH/"
+
+      - name: Upload build log (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log-${{ github.run_number }}
+          path: /tmp/xcodebuild.log
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Export IPA from archive
         run: |
