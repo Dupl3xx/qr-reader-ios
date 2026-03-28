@@ -89,8 +89,8 @@ jobs:
           PP_PATH="$RUNNER_TEMP/profile.mobileprovision"
           echo -n "$PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/1db3201a-b13a-4cf9-af7b-32a989bf68a3.mobileprovision"
-          echo "Provisioning profile installed: 1db3201a-b13a-4cf9-af7b-32a989bf68a3"
+          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/b98cb21f-965a-40d9-ac68-2cfb3d90f434.mobileprovision"
+          echo "Provisioning profile installed: b98cb21f-965a-40d9-ac68-2cfb3d90f434"
 
       - name: Fix Xcode signing settings (use iPhone Developer)
         run: |
@@ -110,8 +110,8 @@ jobs:
       - name: Set provisioning profile UUID in Xcode project
         run: |
           PBXPROJ="ios/QRReader.xcodeproj/project.pbxproj"
-          PROFILE_UUID="1db3201a-b13a-4cf9-af7b-32a989bf68a3"
-          BUNDLE_ID="com.google.ios.youtube.RW4Q5ZGHM2"
+          PROFILE_UUID="b98cb21f-965a-40d9-ac68-2cfb3d90f434"
+          BUNDLE_ID="com.ondrejlevy.qrreader.RW4Q5ZGHM2"
           TEAM_ID="RW4Q5ZGHM2"
 
           # Set provisioning profile specifier
@@ -160,8 +160,8 @@ jobs:
             CODE_SIGN_IDENTITY="iPhone Developer" \
             CODE_SIGN_STYLE="Manual" \
             DEVELOPMENT_TEAM="RW4Q5ZGHM2" \
-            PROVISIONING_PROFILE="1db3201a-b13a-4cf9-af7b-32a989bf68a3" \
-            PRODUCT_BUNDLE_IDENTIFIER="com.google.ios.youtube.RW4Q5ZGHM2" \
+            PROVISIONING_PROFILE="b98cb21f-965a-40d9-ac68-2cfb3d90f434" \
+            PRODUCT_BUNDLE_IDENTIFIER="com.ondrejlevy.qrreader.RW4Q5ZGHM2" \
             -allowProvisioningUpdates 2>&1 | tee /tmp/xcodebuild.log
           BUILD_EXIT=${PIPESTATUS[0]}
 
@@ -205,8 +205,8 @@ jobs:
             <string>iPhone Developer</string>
             <key>provisioningProfiles</key>
             <dict>
-              <key>com.google.ios.youtube.RW4Q5ZGHM2</key>
-              <string>1db3201a-b13a-4cf9-af7b-32a989bf68a3</string>
+              <key>com.ondrejlevy.qrreader.RW4Q5ZGHM2</key>
+              <string>b98cb21f-965a-40d9-ac68-2cfb3d90f434</string>
             </dict>
             <key>compileBitcode</key>
             <false/>

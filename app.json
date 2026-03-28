@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.google.ios.youtube.RW4Q5ZGHM2",
+      "bundleIdentifier": "com.ondrejlevy.qrreader.RW4Q5ZGHM2",
       "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "Camera is needed to scan QR codes.",
