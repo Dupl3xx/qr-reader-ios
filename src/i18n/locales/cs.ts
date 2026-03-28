@@ -13,7 +13,8 @@ export default {
     flipCamera: 'Otočit kameru',
     gallery: 'Galerie',
     scanning: 'Skenuji...',
-    noQrFound: 'Žádný QR kód nenalezen',
+    noQrFound: 'Žádný kód nenalezen',
+    supportsFormats: 'QR · EAN-13 · EAN-8 · UPC · Code 128 · Code 39 · ITF-14 · PDF417',
     permissionRequired: 'Vyžadováno oprávnění',
     cameraPermission: 'Pro skenování QR kódů kamerou je potřeba oprávnění.',
     grantPermission: 'Udělit oprávnění',
@@ -44,6 +45,7 @@ export default {
       text: 'Text',
       geo: 'Poloha',
       calendar: 'Událost',
+      barcode: 'Čárový kód',
       unknown: 'Neznámý',
     },
 

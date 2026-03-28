@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 
-import { CameraView, CameraType, FlashMode, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
@@ -37,7 +37,7 @@ export default function ScannerScreen() {
   const navigation = useNavigation<Nav>();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>('back');
-  const [flash, setFlash] = useState<FlashMode>('off');
+  const [torchOn, setTorchOn] = useState(false);
   const [scanning, setScanning] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [galleryLoading, setGalleryLoading] = useState(false);
@@ -83,7 +83,7 @@ export default function ScannerScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
 
-    const parsed = parseQR(result.data);
+    const parsed = parseQR(result.data, result.type);
 
     if (settings.saveHistory) {
       await addToHistory(parsed);
@@ -184,8 +184,14 @@ export default function ScannerScreen() {
       <CameraView
         style={StyleSheet.absoluteFill}
         facing={facing}
-        flash={flash}
-        barcodeScannerSettings={{ barcodeTypes: ['qr', 'aztec', 'datamatrix', 'pdf417', 'code128', 'code39', 'ean13', 'ean8'] }}
+        enableTorch={torchOn}
+        barcodeScannerSettings={{
+          barcodeTypes: [
+            'qr', 'aztec', 'datamatrix', 'pdf417',
+            'ean13', 'ean8', 'upc_a', 'upc_e',
+            'code128', 'code39', 'code93', 'codabar', 'itf14',
+          ],
+        }}
         onBarcodeScanned={scanning ? handleBarCodeScanned : undefined}
       />
 
@@ -197,12 +203,12 @@ export default function ScannerScreen() {
           <View style={styles.topButtons}>
             <TouchableOpacity
               style={styles.iconBtn}
-              onPress={() => setFlash(f => f === 'off' ? 'on' : 'off')}
+              onPress={() => setTorchOn(v => !v)}
             >
               <Ionicons
-                name={flash === 'on' ? 'flash' : 'flash-off'}
+                name={torchOn ? 'flash' : 'flash-off'}
                 size={24}
-                color={flash === 'on' ? '#FFD60A' : '#FFFFFF'}
+                color={torchOn ? '#FFD60A' : '#FFFFFF'}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -237,7 +243,9 @@ export default function ScannerScreen() {
 
         {/* Bottom area */}
         <View style={styles.bottomArea}>
-          <Text style={styles.hintText}>{t('scanner.pointCamera')}</Text>
+          <Text style={styles.hintText}>{t('scanner.pointCamera')}
+          </Text>
+          <Text style={styles.hintSubText}>{t('scanner.supportsFormats')}</Text>
           <TouchableOpacity style={styles.galleryBtn} onPress={pickFromGallery} disabled={galleryLoading}>
             {galleryLoading ? (
               <ActivityIndicator color="#FFFFFF" style={{ marginRight: 8 }} />
@@ -354,7 +362,8 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 40,
   },
-  hintText: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 32 },
+  hintText: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 4, textAlign: 'center' },
+  hintSubText: { color: 'rgba(255,255,255,0.45)', fontSize: 11, marginBottom: 28, textAlign: 'center', paddingHorizontal: 20 },
   galleryBtn: {
     flexDirection: 'row',
     alignItems: 'center',

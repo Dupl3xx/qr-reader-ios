@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import './src/i18n';
 
 import React from 'react';
-import { StatusBar, useColorScheme } from 'react-native';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -14,7 +14,8 @@ import ScannerScreen from './src/screens/ScannerScreen';
 import ResultScreen from './src/screens/ResultScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-import { Colors, resolveScheme } from './src/utils/theme';
+import { Colors } from './src/utils/theme';
+import { ThemeProvider, useTheme } from './src/utils/ThemeContext';
 import { ParsedQR } from './src/utils/qrParser';
 
 export type RootStackParamList = {
@@ -33,7 +34,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 function TabNavigator() {
   const { t } = useTranslation();
-  const scheme = resolveScheme(useColorScheme());
+  const { scheme } = useTheme();
   const colors = Colors[scheme];
 
   return (
@@ -78,13 +79,13 @@ function TabNavigator() {
   );
 }
 
-export default function App() {
-  const scheme = resolveScheme(useColorScheme());
+function AppNavigator() {
+  const { scheme } = useTheme();
   const colors = Colors[scheme];
   const { t } = useTranslation();
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <>
       <StatusBar
         barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
@@ -112,6 +113,16 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <AppNavigator />
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

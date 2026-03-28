@@ -79,20 +79,22 @@ export function getTypeColor(type: string, colors: ColorScheme): string {
     case 'vcard': return colors.accentPurple;
     case 'geo': return colors.accentRed;
     case 'calendar': return colors.accentOrange;
+    case 'barcode': return '#FF6B35';
     default: return colors.textSecondary;
   }
 }
 
 export function getTypeIcon(type: string): string {
   switch (type) {
-    case 'url': return 'globe';
-    case 'email': return 'mail';
-    case 'phone': return 'phone';
-    case 'sms': return 'chatbubble';
-    case 'wifi': return 'wifi';
-    case 'vcard': return 'person';
-    case 'geo': return 'location';
-    case 'calendar': return 'calendar';
-    default: return 'text.alignleft';
+    case 'url': return 'globe-outline';
+    case 'email': return 'mail-outline';
+    case 'phone': return 'call-outline';
+    case 'sms': return 'chatbubble-outline';
+    case 'wifi': return 'wifi-outline';
+    case 'vcard': return 'person-outline';
+    case 'geo': return 'location-outline';
+    case 'calendar': return 'calendar-outline';
+    case 'barcode': return 'barcode-outline';
+    default: return 'document-text-outline';
   }
 }

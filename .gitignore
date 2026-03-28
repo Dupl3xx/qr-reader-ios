@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+credentials.json
+scripts/cert_base64.txt
+scripts/profile_base64.txt

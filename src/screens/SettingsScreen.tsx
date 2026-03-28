@@ -6,7 +6,6 @@ import {
   ScrollView,
   Switch,
   TouchableOpacity,
-  useColorScheme,
   Modal,
   FlatList,
 } from 'react-native';
@@ -14,13 +13,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 
-import { Colors, resolveScheme } from '../utils/theme';
+import { Colors } from '../utils/theme';
+import { useTheme } from '../utils/ThemeContext';
 import { AppSettings, getSettings, saveSettings } from '../utils/storage';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
-  const scheme = resolveScheme(useColorScheme());
+  const { scheme, setDarkMode } = useTheme();
   const colors = Colors[scheme];
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [langPickerVisible, setLangPickerVisible] = useState(false);
@@ -36,6 +36,9 @@ export default function SettingsScreen() {
     await saveSettings({ [key]: value });
     if (key === 'language' && value !== 'auto') {
       i18n.changeLanguage(value);
+    }
+    if (key === 'darkMode') {
+      setDarkMode(value as boolean);
     }
   };
 

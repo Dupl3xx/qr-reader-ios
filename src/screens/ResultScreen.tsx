@@ -8,7 +8,6 @@ import {
   Share,
   Linking,
   Animated,
-  useColorScheme,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
@@ -16,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 
-import { Colors, getTypeColor, getTypeIcon, resolveScheme } from '../utils/theme';
+import { Colors, getTypeColor, getTypeIcon } from '../utils/theme';
+import { useTheme } from '../utils/ThemeContext';
 import { RootStackParamList } from '../../App';
 
 type ResultRoute = RouteProp<RootStackParamList, 'Result'>;
@@ -26,7 +26,7 @@ export default function ResultScreen() {
   const navigation = useNavigation();
   const route = useRoute<ResultRoute>();
   const { parsedQR } = route.params;
-  const scheme = resolveScheme(useColorScheme());
+  const { scheme } = useTheme();
   const colors = Colors[scheme];
 
   const [copied, setCopied] = useState(false);

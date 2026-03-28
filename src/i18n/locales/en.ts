@@ -11,7 +11,8 @@ export default {
     flipCamera: 'Flip camera',
     gallery: 'Gallery',
     scanning: 'Scanning...',
-    noQrFound: 'No QR code found',
+    noQrFound: 'No code found',
+    supportsFormats: 'QR · EAN-13 · EAN-8 · UPC · Code 128 · Code 39 · ITF-14 · PDF417',
     permissionRequired: 'Permission Required',
     cameraPermission: 'Camera permission is needed to scan QR codes.',
     grantPermission: 'Grant Permission',
@@ -40,6 +41,7 @@ export default {
       text: 'Text',
       geo: 'Location',
       calendar: 'Event',
+      barcode: 'Barcode',
       unknown: 'Unknown',
     },
 

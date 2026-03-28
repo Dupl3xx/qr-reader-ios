@@ -7,7 +7,13 @@ export type QRType =
   | 'vcard'
   | 'geo'
   | 'calendar'
+  | 'barcode'
   | 'text';
+
+const LINEAR_BARCODE_TYPES = new Set([
+  'ean13', 'ean8', 'upc_a', 'upc_e',
+  'code128', 'code39', 'code93', 'codabar', 'itf14',
+]);
 
 export interface ParsedQR {
   type: QRType;
@@ -17,8 +23,19 @@ export interface ParsedQR {
   metadata?: Record<string, string>;
 }
 
-export function parseQR(data: string): ParsedQR {
+export function parseQR(data: string, barcodeType?: string): ParsedQR {
   const raw = data.trim();
+
+  // Linear barcode (EAN, UPC, Code128, etc.)
+  if (barcodeType && LINEAR_BARCODE_TYPES.has(barcodeType)) {
+    const format = barcodeType.toUpperCase().replace('_', '-');
+    return {
+      type: 'barcode',
+      raw,
+      display: raw,
+      metadata: { format },
+    };
+  }
 
   // URL
   if (/^https?:\/\//i.test(raw) || /^www\./i.test(raw)) {

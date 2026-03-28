@@ -6,7 +6,6 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
-  useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +14,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Swipeable } from 'react-native-gesture-handler';
 
 import { HistoryItem, getHistory, deleteHistoryItem, clearHistory } from '../utils/storage';
-import { Colors, getTypeColor, getTypeIcon, resolveScheme } from '../utils/theme';
+import { Colors, getTypeColor, getTypeIcon } from '../utils/theme';
+import { useTheme } from '../utils/ThemeContext';
 import { RootStackParamList } from '../../App';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Main'>;
@@ -23,7 +23,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList, 'Main'>;
 export default function HistoryScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
-  const scheme = resolveScheme(useColorScheme());
+  const { scheme } = useTheme();
   const colors = Colors[scheme];
   const [items, setItems] = useState<HistoryItem[]>([]);
 
