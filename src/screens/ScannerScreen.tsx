@@ -12,8 +12,11 @@ import {
 } from 'react-native';
 
 import { CameraView, CameraType, FlashMode, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
+import jsQR from 'jsqr';
+import * as jpeg from 'jpeg-js';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -106,14 +109,40 @@ export default function ScannerScreen() {
     setGalleryLoading(true);
     try {
       const uri = result.assets[0].uri;
-      const scanned = await BarCodeScanner.scanFromURLAsync(uri, [BarCodeScanner.Constants.BarCodeType.qr]);
 
-      if (scanned.length > 0 && scanned[0].data) {
+      // Resize and convert to JPEG for consistent decoding (handles HEIC, PNG, etc.)
+      const manipulated = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 1024 } }],
+        { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
+      );
+
+      // Read as base64
+      const base64 = await FileSystem.readAsStringAsync(manipulated.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Decode JPEG to raw RGBA pixel data
+      const binaryStr = atob(base64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      const rawImageData = jpeg.decode(bytes, { useTArray: true });
+
+      // Scan QR code with jsQR
+      const qrResult = jsQR(
+        new Uint8ClampedArray(rawImageData.data.buffer),
+        rawImageData.width,
+        rawImageData.height
+      );
+
+      if (qrResult && qrResult.data) {
         const settings = await getSettings();
         if (settings.haptics) {
           await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
-        const parsed = parseQR(scanned[0].data);
+        const parsed = parseQR(qrResult.data);
         if (settings.saveHistory) {
           await addToHistory(parsed);
         }
