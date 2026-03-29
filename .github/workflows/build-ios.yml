@@ -98,6 +98,7 @@ jobs:
           echo "Profile UUID detected: $PROFILE_UUID"
           cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
           echo "Provisioning profile installed: ${PROFILE_UUID}"
+          echo "PROFILE_UUID=${PROFILE_UUID}" >> $GITHUB_ENV
 
       - name: Fix Xcode signing settings (use iPhone Developer)
         run: |
@@ -117,7 +118,6 @@ jobs:
       - name: Set provisioning profile UUID in Xcode project
         run: |
           PBXPROJ="ios/QRReader.xcodeproj/project.pbxproj"
-          PROFILE_UUID="b98cb21f-965a-40d9-ac68-2cfb3d90f434"
           BUNDLE_ID="com.ondrejlevy.qrreader.RW4Q5ZGHM2"
           TEAM_ID="RW4Q5ZGHM2"
 
@@ -167,7 +167,7 @@ jobs:
             CODE_SIGN_IDENTITY="iPhone Developer" \
             CODE_SIGN_STYLE="Manual" \
             DEVELOPMENT_TEAM="RW4Q5ZGHM2" \
-            PROVISIONING_PROFILE="b98cb21f-965a-40d9-ac68-2cfb3d90f434" \
+            PROVISIONING_PROFILE="${{ env.PROFILE_UUID }}" \
             PRODUCT_BUNDLE_IDENTIFIER="com.ondrejlevy.qrreader.RW4Q5ZGHM2" \
             -allowProvisioningUpdates 2>&1 | tee /tmp/xcodebuild.log
           BUILD_EXIT=${PIPESTATUS[0]}
@@ -213,7 +213,7 @@ jobs:
             <key>provisioningProfiles</key>
             <dict>
               <key>com.ondrejlevy.qrreader.RW4Q5ZGHM2</key>
-              <string>b98cb21f-965a-40d9-ac68-2cfb3d90f434</string>
+              <string>${{ env.PROFILE_UUID }}</string>
             </dict>
             <key>compileBitcode</key>
             <false/>
