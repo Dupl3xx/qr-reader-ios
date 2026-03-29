@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR and EAN Reader – Privacy Policy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      padding: 0;
+    }
+    .header {
+      text-align: center;
+      padding: 48px 20px 32px;
+      border-bottom: 1px solid #1C1C1E;
+    }
+    .icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #007AFF, #0A84FF);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 32px rgba(0,122,255,0.3);
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .header .subtitle {
+      color: #8E8E93;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    /* Language switcher */
+    .lang-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      background: #1C1C1E;
+      border-radius: 10px;
+      padding: 3px;
+      display: inline-flex;
+      margin: 0 auto;
+    }
+    .lang-btn {
+      background: none;
+      border: none;
+      color: #8E8E93;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .lang-btn:hover { color: #fff; }
+    .lang-btn.active {
+      background: #007AFF;
+      color: #fff;
+    }
+
+    /* Content */
+    .content {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    .effective-date {
+      color: #8E8E93;
+      font-size: 13px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .section {
+      margin-bottom: 32px;
+    }
+    .section h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    .section p {
+      font-size: 15px;
+      line-height: 1.65;
+      color: #EBEBF5CC;
+    }
+    .section p + p {
+      margin-top: 10px;
+    }
+    .highlight-box {
+      background: #1C1C1E;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 12px;
+    }
+    .highlight-box p {
+      color: #EBEBF5CC;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(52, 199, 89, 0.15);
+      color: #34C759;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .contact-link {
+      color: #007AFF;
+      text-decoration: none;
+    }
+    .contact-link:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 24px 20px 40px;
+      border-top: 1px solid #1C1C1E;
+    }
+    .footer p {
+      color: #636366;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .footer a {
+      color: #007AFF;
+      text-decoration: none;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: #38383A;
+      margin: 0 auto 32px;
+    }
+
+    @media (max-width: 480px) {
+      .header { padding: 32px 16px 24px; }
+      .content { padding: 24px 16px 48px; }
+      .header h1 { font-size: 24px; }
+      .section h2 { font-size: 18px; }
+      .lang-btn { padding: 7px 12px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="icon">📷</div>
+    <h1 data-i18n="title">Zásady ochrany osobních údajů</h1>
+    <div class="subtitle">QR and EAN Reader</div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('cs')">Čeština</button>
+      <button class="lang-btn" onclick="setLang('en')">English</button>
+      <button class="lang-btn" onclick="setLang('de')">Deutsch</button>
+      <button class="lang-btn" onclick="setLang('es')">Español</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="effective-date" data-i18n="effective">Datum účinnosti: 29. března 2026</div>
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="badge" data-i18n="badgePrivacy">&#9679; Žádné shromažďování dat</div>
+      <h2 data-i18n="s1Title">Jaké údaje shromažďujeme</h2>
+      <p data-i18n="s1Text">Aplikace QR and EAN Reader neshromažďuje, neukládá ani nepřenáší žádné osobní údaje. Nesbíráme vaše jméno, e-mailovou adresu, polohu ani žádné jiné identifikační informace. Aplikace nevyžaduje přihlášení ani vytvoření účtu.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="s2Title">Přístup ke kameře</h2>
+      <p data-i18n="s2Text">Aplikace vyžaduje přístup ke kameře vašeho zařízení za účelem skenování QR kódů a čárových kódů. Obraz z kamery je zpracováván výhradně lokálně na vašem zařízení v reálném čase. Žádné snímky ani video z kamery nejsou ukládány, odesílány na servery ani sdíleny s třetími stranami.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="s3Title">Ukládání historie skenování</h2>
+      <p data-i18n="s3Text">Historie naskenovaných kódů je uložena výhradně lokálně na vašem zařízení. Tato data neopouštějí vaše zařízení a nejsou přístupná nám ani žádné třetí straně. Historii skenování můžete kdykoli smazat přímo v aplikaci.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="s4Title">Služby třetích stran</h2>
+      <p data-i18n="s4Text">Aplikace QR and EAN Reader nepoužívá žádné analytické nástroje, reklamní sítě, nástroje pro sledování ani jiné služby třetích stran, které by zpracovávaly vaše údaje. Nesdílíme žádná data s třetími stranami.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="s5Title">Ochrana soukromí dětí</h2>
+      <p data-i18n="s5Text">Naše aplikace neshromažďuje osobní údaje od žádného uživatele, včetně dětí mladších 13 let. Aplikaci mohou bezpečně používat uživatelé všech věkových skupin.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="s6Title">Změny těchto zásad</h2>
+      <p data-i18n="s6Text">Tyto zásady ochrany osobních údajů můžeme příležitostně aktualizovat. Jakékoli změny budou zveřejněny na této stránce s aktualizovaným datem účinnosti. Doporučujeme tuto stránku pravidelně kontrolovat.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="s7Title">Kontakt</h2>
+      <p data-i18n="s7Text">Máte-li jakékoli dotazy nebo připomínky k těmto zásadám ochrany osobních údajů, kontaktujte nás:</p>
+      <div class="highlight-box">
+        <p><strong>LARX s.r.o.</strong><br>
+        E-mail: <a class="contact-link" href="mailto:levy@larx.cz">levy@larx.cz</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2026 LARX s.r.o. &middot; <a href="./">QR and EAN Reader</a></p>
+  </div>
+
+<script>
+const translations = {
+  cs: {
+    title: "Zásady ochrany osobních údajů",
+    effective: "Datum účinnosti: 29. března 2026",
+    badgePrivacy: "&#9679; Žádné shromažďování dat",
+    s1Title: "Jaké údaje shromažďujeme",
+    s1Text: "Aplikace QR and EAN Reader neshromažďuje, neukládá ani nepřenáší žádné osobní údaje. Nesbíráme vaše jméno, e-mailovou adresu, polohu ani žádné jiné identifikační informace. Aplikace nevyžaduje přihlášení ani vytvoření účtu.",
+    s2Title: "Přístup ke kameře",
+    s2Text: "Aplikace vyžaduje přístup ke kameře vašeho zařízení za účelem skenování QR kódů a čárových kódů. Obraz z kamery je zpracováván výhradně lokálně na vašem zařízení v reálném čase. Žádné snímky ani video z kamery nejsou ukládány, odesílány na servery ani sdíleny s třetími stranami.",
+    s3Title: "Ukládání historie skenování",
+    s3Text: "Historie naskenovaných kódů je uložena výhradně lokálně na vašem zařízení. Tato data neopouštějí vaše zařízení a nejsou přístupná nám ani žádné třetí straně. Historii skenování můžete kdykoli smazat přímo v aplikaci.",
+    s4Title: "Služby třetích stran",
+    s4Text: "Aplikace QR and EAN Reader nepoužívá žádné analytické nástroje, reklamní sítě, nástroje pro sledování ani jiné služby třetích stran, které by zpracovávaly vaše údaje. Nesdílíme žádná data s třetími stranami.",
+    s5Title: "Ochrana soukromí dětí",
+    s5Text: "Naše aplikace neshromažďuje osobní údaje od žádného uživatele, včetně dětí mladších 13 let. Aplikaci mohou bezpečně používat uživatelé všech věkových skupin.",
+    s6Title: "Změny těchto zásad",
+    s6Text: "Tyto zásady ochrany osobních údajů můžeme příležitostně aktualizovat. Jakékoli změny budou zveřejněny na této stránce s aktualizovaným datem účinnosti. Doporučujeme tuto stránku pravidelně kontrolovat.",
+    s7Title: "Kontakt",
+    s7Text: "Máte-li jakékoli dotazy nebo připomínky k těmto zásadám ochrany osobních údajů, kontaktujte nás:"
+  },
+  en: {
+    title: "Privacy Policy",
+    effective: "Effective date: March 29, 2026",
+    badgePrivacy: "&#9679; No data collection",
+    s1Title: "What data we collect",
+    s1Text: "QR and EAN Reader does not collect, store, or transmit any personal data. We do not collect your name, email address, location, or any other identifying information. The app does not require login or account creation.",
+    s2Title: "Camera access",
+    s2Text: "The app requires access to your device's camera to scan QR codes and barcodes. The camera feed is processed entirely on your device in real time. No images or video from the camera are stored, sent to servers, or shared with third parties.",
+    s3Title: "History storage",
+    s3Text: "Your scan history is stored exclusively on your device. This data never leaves your device and is not accessible to us or any third party. You can delete your scan history at any time from within the app.",
+    s4Title: "Third-party services",
+    s4Text: "QR and EAN Reader does not use any analytics tools, advertising networks, tracking tools, or other third-party services that would process your data. We do not share any data with third parties.",
+    s5Title: "Children's privacy",
+    s5Text: "Our app does not collect personal data from any user, including children under the age of 13. The app is safe for users of all ages.",
+    s6Title: "Changes to this policy",
+    s6Text: "We may update this privacy policy from time to time. Any changes will be posted on this page with an updated effective date. We encourage you to review this page periodically.",
+    s7Title: "Contact",
+    s7Text: "If you have any questions or concerns about this privacy policy, please contact us:"
+  },
+  de: {
+    title: "Datenschutzerklärung",
+    effective: "Datum des Inkrafttretens: 29. März 2026",
+    badgePrivacy: "&#9679; Keine Datenerfassung",
+    s1Title: "Welche Daten wir erheben",
+    s1Text: "QR and EAN Reader erhebt, speichert oder überträgt keine personenbezogenen Daten. Wir erfassen weder Ihren Namen noch Ihre E-Mail-Adresse, Ihren Standort oder andere identifizierende Informationen. Die App erfordert keine Anmeldung und keine Kontoerstellung.",
+    s2Title: "Kamerazugriff",
+    s2Text: "Die App benötigt Zugriff auf die Kamera Ihres Geräts, um QR-Codes und Barcodes zu scannen. Das Kamerabild wird ausschließlich lokal auf Ihrem Gerät in Echtzeit verarbeitet. Es werden keine Bilder oder Videos von der Kamera gespeichert, an Server gesendet oder mit Dritten geteilt.",
+    s3Title: "Speicherung des Scanverlaufs",
+    s3Text: "Ihr Scanverlauf wird ausschließlich lokal auf Ihrem Gerät gespeichert. Diese Daten verlassen Ihr Gerät nicht und sind weder für uns noch für Dritte zugänglich. Sie können Ihren Scanverlauf jederzeit in der App löschen.",
+    s4Title: "Dienste Dritter",
+    s4Text: "QR and EAN Reader verwendet keine Analysetools, Werbenetzwerke, Tracking-Tools oder andere Dienste Dritter, die Ihre Daten verarbeiten würden. Wir geben keine Daten an Dritte weiter.",
+    s5Title: "Datenschutz für Kinder",
+    s5Text: "Unsere App erhebt keine personenbezogenen Daten von Nutzern, einschließlich Kindern unter 13 Jahren. Die App kann von Nutzern aller Altersgruppen sicher verwendet werden.",
+    s6Title: "Änderungen dieser Erklärung",
+    s6Text: "Wir können diese Datenschutzerklärung von Zeit zu Zeit aktualisieren. Alle Änderungen werden auf dieser Seite mit einem aktualisierten Datum des Inkrafttretens veröffentlicht. Wir empfehlen Ihnen, diese Seite regelmäßig zu überprüfen.",
+    s7Title: "Kontakt",
+    s7Text: "Wenn Sie Fragen oder Anmerkungen zu dieser Datenschutzerklärung haben, kontaktieren Sie uns bitte:"
+  },
+  es: {
+    title: "Política de privacidad",
+    effective: "Fecha de vigencia: 29 de marzo de 2026",
+    badgePrivacy: "&#9679; Sin recopilación de datos",
+    s1Title: "Qué datos recopilamos",
+    s1Text: "QR and EAN Reader no recopila, almacena ni transmite ningún dato personal. No recopilamos su nombre, dirección de correo electrónico, ubicación ni ninguna otra información identificativa. La aplicación no requiere inicio de sesión ni creación de cuenta.",
+    s2Title: "Acceso a la cámara",
+    s2Text: "La aplicación requiere acceso a la cámara de su dispositivo para escanear códigos QR y códigos de barras. La imagen de la cámara se procesa exclusivamente de forma local en su dispositivo en tiempo real. No se almacenan, envían a servidores ni comparten con terceros imágenes ni vídeos de la cámara.",
+    s3Title: "Almacenamiento del historial",
+    s3Text: "Su historial de escaneo se almacena exclusivamente en su dispositivo. Estos datos nunca salen de su dispositivo y no son accesibles para nosotros ni para terceros. Puede eliminar su historial de escaneo en cualquier momento desde la aplicación.",
+    s4Title: "Servicios de terceros",
+    s4Text: "QR and EAN Reader no utiliza ninguna herramienta de análisis, red publicitaria, herramienta de seguimiento ni otros servicios de terceros que procesen sus datos. No compartimos ningún dato con terceros.",
+    s5Title: "Privacidad de los niños",
+    s5Text: "Nuestra aplicación no recopila datos personales de ningún usuario, incluidos los menores de 13 años. La aplicación es segura para usuarios de todas las edades.",
+    s6Title: "Cambios en esta política",
+    s6Text: "Podemos actualizar esta política de privacidad de vez en cuando. Cualquier cambio se publicará en esta página con una fecha de vigencia actualizada. Le recomendamos que revise esta página periódicamente.",
+    s7Title: "Contacto",
+    s7Text: "Si tiene alguna pregunta o comentario sobre esta política de privacidad, póngase en contacto con nosotros:"
+  }
+};
+
+function setLang(lang) {
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    if (btn.textContent.toLowerCase().includes(
+      lang === 'cs' ? 'češ' : lang === 'en' ? 'eng' : lang === 'de' ? 'deu' : 'esp'
+    )) {
+      btn.classList.add('active');
+    }
+  });
+  // Simpler active toggle
+  var buttons = document.querySelectorAll('.lang-btn');
+  var langMap = ['cs', 'en', 'de', 'es'];
+  buttons.forEach(function(btn, i) {
+    btn.classList.toggle('active', langMap[i] === lang);
+  });
+
+  var t = translations[lang];
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (t[key]) {
+      el.innerHTML = t[key];
+    }
+  });
+
+  document.documentElement.lang = lang === 'cs' ? 'cs' : lang === 'de' ? 'de' : lang === 'es' ? 'es' : 'en';
+}
+</script>
+
+</body>
+</html>
