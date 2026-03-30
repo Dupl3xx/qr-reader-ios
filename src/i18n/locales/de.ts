@@ -15,7 +15,7 @@ export default {
     supportsFormats: 'QR · EAN-13 · EAN-8 · UPC · Code 128 · Code 39 · ITF-14 · PDF417',
     permissionRequired: 'Berechtigung erforderlich',
     cameraPermission: 'Kameraberechtigung wird zum Scannen von QR-Codes benötigt.',
-    grantPermission: 'Berechtigung erteilen',
+    grantPermission: 'Weiter',
     openSettings: 'Einstellungen öffnen',
   },
 

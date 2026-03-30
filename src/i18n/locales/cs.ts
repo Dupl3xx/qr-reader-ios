@@ -17,7 +17,7 @@ export default {
     supportsFormats: 'QR · EAN-13 · EAN-8 · UPC · Code 128 · Code 39 · ITF-14 · PDF417',
     permissionRequired: 'Vyžadováno oprávnění',
     cameraPermission: 'Pro skenování QR kódů kamerou je potřeba oprávnění.',
-    grantPermission: 'Udělit oprávnění',
+    grantPermission: 'Pokračovat',
     openSettings: 'Otevřít nastavení',
   },
 
