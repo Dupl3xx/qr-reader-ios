@@ -16,7 +16,7 @@ import Constants from 'expo-constants';
 import { Colors } from '../utils/theme';
 import { useTheme } from '../utils/ThemeContext';
 import { useLayout } from '../utils/layout';
-import { AppSettings, getSettings, saveSettings } from '../utils/storage';
+import { AppSettings, MultiScanMode, getSettings, saveSettings } from '../utils/storage';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 
 export default function SettingsScreen() {
@@ -26,6 +26,7 @@ export default function SettingsScreen() {
   const { maxContentWidth } = useLayout();
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [langPickerVisible, setLangPickerVisible] = useState(false);
+  const [multiScanPickerVisible, setMultiScanPickerVisible] = useState(false);
 
   useEffect(() => {
     getSettings().then(setSettings);
@@ -114,8 +115,26 @@ export default function SettingsScreen() {
           colors={colors}
           value={settings.saveHistory}
           onToggle={v => update('saveHistory', v)}
-          last
+          last={false}
         />
+        <View style={[styles.separator, { backgroundColor: colors.separator }]} />
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => setMultiScanPickerVisible(true)}
+        >
+          <View style={[styles.iconWrap, { backgroundColor: colors.accent }]}>
+            <Ionicons name="copy-outline" size={16} color="#FFF" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.rowLabel, { color: colors.text }]}>{t('settings.multiScan')}</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
+              {settings.multiScanMode === 'single' ? t('settings.multiScanSingle') :
+               settings.multiScanMode === 'all' ? t('settings.multiScanAll') :
+               t('settings.multiScanChoose')}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+        </TouchableOpacity>
       </View>
 
       {/* About */}
@@ -156,6 +175,42 @@ export default function SettingsScreen() {
                 </TouchableOpacity>
               )}
             />
+          </View>
+        </View>
+      </Modal>
+      {/* Multi-scan mode picker modal */}
+      <Modal visible={multiScanPickerVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: colors.card }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.separator }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{t('settings.multiScan')}</Text>
+              <TouchableOpacity onPress={() => setMultiScanPickerVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ color: colors.textSecondary, fontSize: 13, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4 }}>
+              {t('settings.multiScanDesc')}
+            </Text>
+            {([
+              { mode: 'single' as MultiScanMode, label: t('settings.multiScanSingle'), icon: 'scan-outline' },
+              { mode: 'all' as MultiScanMode, label: t('settings.multiScanAll'), icon: 'layers-outline' },
+              { mode: 'choose' as MultiScanMode, label: t('settings.multiScanChoose'), icon: 'list-outline' },
+            ]).map(item => (
+              <TouchableOpacity
+                key={item.mode}
+                style={[styles.langRow, { borderBottomColor: colors.separator }]}
+                onPress={() => {
+                  update('multiScanMode', item.mode);
+                  setMultiScanPickerVisible(false);
+                }}
+              >
+                <Ionicons name={item.icon as any} size={22} color={colors.textSecondary} style={{ marginRight: 14 }} />
+                <Text style={[styles.langLabel, { color: colors.text }]}>{item.label}</Text>
+                {settings.multiScanMode === item.mode && (
+                  <Ionicons name="checkmark" size={20} color={colors.accent} />
+                )}
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </Modal>

@@ -10,6 +10,8 @@ export interface HistoryItem {
   scannedAt: number;
 }
 
+export type MultiScanMode = 'single' | 'all' | 'choose';
+
 export interface AppSettings {
   darkMode: boolean;
   haptics: boolean;
@@ -17,6 +19,7 @@ export interface AppSettings {
   autoOpenLinks: boolean;
   saveHistory: boolean;
   language: string;
+  multiScanMode: MultiScanMode;
 }
 
 export const defaultSettings: AppSettings = {
@@ -26,6 +29,7 @@ export const defaultSettings: AppSettings = {
   autoOpenLinks: false,
   saveHistory: true,
   language: 'auto',
+  multiScanMode: 'single',
 };
 
 export async function getHistory(): Promise<HistoryItem[]> {

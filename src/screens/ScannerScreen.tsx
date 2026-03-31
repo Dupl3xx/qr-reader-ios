@@ -8,6 +8,8 @@ import {
   Alert,
   Linking,
   ActivityIndicator,
+  Modal,
+  FlatList,
 } from 'react-native';
 
 import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
@@ -22,9 +24,12 @@ import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { parseQR } from '../utils/qrParser';
+import { parseQR, ParsedQR } from '../utils/qrParser';
 import { addToHistory, getSettings } from '../utils/storage';
 import { useLayout } from '../utils/layout';
+import { Colors } from '../utils/theme';
+import { useTheme } from '../utils/ThemeContext';
+import { getTypeColor, getTypeIcon } from '../utils/theme';
 import { RootStackParamList } from '../../App';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Main'>;
@@ -39,6 +44,13 @@ export default function ScannerScreen() {
   const [scanning, setScanning] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [galleryLoading, setGalleryLoading] = useState(false);
+  const [collectedCodes, setCollectedCodes] = useState<Map<string, ParsedQR>>(new Map());
+  const [multiPickerVisible, setMultiPickerVisible] = useState(false);
+  const [multiPickerCodes, setMultiPickerCodes] = useState<ParsedQR[]>([]);
+  const collectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const collectedRef = useRef<Map<string, ParsedQR>>(new Map());
+  const { scheme } = useTheme();
+  const themeColors = Colors[scheme];
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -67,28 +79,89 @@ export default function ScannerScreen() {
     useCallback(() => {
       setScanning(true);
       setIsProcessing(false);
+      collectedRef.current = new Map();
+      setCollectedCodes(new Map());
+      setMultiPickerVisible(false);
+      setMultiPickerCodes([]);
+      if (collectTimerRef.current) {
+        clearTimeout(collectTimerRef.current);
+        collectTimerRef.current = null;
+      }
     }, [])
   );
 
-  const handleBarCodeScanned = useCallback(async (result: BarcodeScanningResult) => {
-    if (!scanning || isProcessing) return;
-    setScanning(false);
-    setIsProcessing(true);
+  const finishMultiScan = useCallback(async () => {
+    const codes = Array.from(collectedRef.current.values());
+    collectedRef.current = new Map();
+    if (codes.length === 0) return;
 
     const settings = await getSettings();
 
+    if (codes.length === 1) {
+      // Single code — normal behavior
+      if (settings.haptics) {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      if (settings.saveHistory) await addToHistory(codes[0]);
+      navigation.navigate('Result', { parsedQR: codes[0] });
+      return;
+    }
+
+    // Multiple codes found
     if (settings.haptics) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
 
+    if (settings.multiScanMode === 'all') {
+      // Save all to history and show first one
+      if (settings.saveHistory) {
+        for (const code of codes) await addToHistory(code);
+      }
+      navigation.navigate('Result', { parsedQR: codes[0] });
+    } else if (settings.multiScanMode === 'choose') {
+      // Show picker
+      setMultiPickerCodes(codes);
+      setMultiPickerVisible(true);
+    } else {
+      // 'single' — just use the first one
+      if (settings.saveHistory) await addToHistory(codes[0]);
+      navigation.navigate('Result', { parsedQR: codes[0] });
+    }
+  }, [navigation]);
+
+  const handleBarCodeScanned = useCallback(async (result: BarcodeScanningResult) => {
+    if (!scanning || isProcessing) return;
+
+    const settings = await getSettings();
     const parsed = parseQR(result.data, result.type);
 
-    if (settings.saveHistory) {
-      await addToHistory(parsed);
+    if (settings.multiScanMode === 'single') {
+      // Original behavior — immediate
+      setScanning(false);
+      setIsProcessing(true);
+      if (settings.haptics) {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      if (settings.saveHistory) await addToHistory(parsed);
+      navigation.navigate('Result', { parsedQR: parsed });
+      return;
     }
 
-    navigation.navigate('Result', { parsedQR: parsed });
-  }, [scanning, isProcessing, navigation]);
+    // Multi-scan mode — collect codes for 1.5 seconds
+    const key = result.data;
+    if (!collectedRef.current.has(key)) {
+      collectedRef.current.set(key, parsed);
+      setCollectedCodes(new Map(collectedRef.current));
+    }
+
+    // Reset timer each time a new code is detected
+    if (collectTimerRef.current) clearTimeout(collectTimerRef.current);
+    collectTimerRef.current = setTimeout(() => {
+      setScanning(false);
+      setIsProcessing(true);
+      finishMultiScan();
+    }, 1500);
+  }, [scanning, isProcessing, navigation, finishMultiScan]);
 
   const pickFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -193,6 +266,16 @@ export default function ScannerScreen() {
         onBarcodeScanned={scanning ? handleBarCodeScanned : undefined}
       />
 
+      {/* Collected codes badge */}
+      {collectedCodes.size > 0 && scanning && (
+        <View style={styles.collectedBadge}>
+          <Ionicons name="layers" size={16} color="#FFF" />
+          <Text style={styles.collectedBadgeText}>
+            {collectedCodes.size} {t('settings.multiScanFound')}
+          </Text>
+        </View>
+      )}
+
       {/* Dark overlay with cutout */}
       <View style={styles.overlay}>
         {/* Top bar */}
@@ -256,6 +339,64 @@ export default function ScannerScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Multi-code picker modal */}
+      <Modal visible={multiPickerVisible} transparent animationType="slide">
+        <View style={styles.pickerOverlay}>
+          <View style={[styles.pickerCard, { backgroundColor: themeColors.card }]}>
+            <View style={[styles.pickerHeader, { borderBottomColor: themeColors.separator }]}>
+              <Text style={[styles.pickerTitle, { color: themeColors.text }]}>
+                {t('settings.multiScanSelect')}
+              </Text>
+              <TouchableOpacity onPress={() => {
+                setMultiPickerVisible(false);
+                setScanning(true);
+                setIsProcessing(false);
+              }}>
+                <Ionicons name="close" size={24} color={themeColors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.pickerSubtitle, { color: themeColors.textSecondary }]}>
+              {multiPickerCodes.length} {t('settings.multiScanFound')}
+            </Text>
+            <FlatList
+              data={multiPickerCodes}
+              keyExtractor={(item, idx) => item.raw + idx}
+              renderItem={({ item }) => {
+                const typeColor = getTypeColor(item.type);
+                const typeIcon = getTypeIcon(item.type);
+                return (
+                  <TouchableOpacity
+                    style={[styles.pickerRow, { borderBottomColor: themeColors.separator }]}
+                    onPress={async () => {
+                      setMultiPickerVisible(false);
+                      const settings = await getSettings();
+                      if (settings.saveHistory) await addToHistory(item);
+                      navigation.navigate('Result', { parsedQR: item });
+                    }}
+                  >
+                    <View style={[styles.pickerIcon, { backgroundColor: typeColor }]}>
+                      <Ionicons name={typeIcon as any} size={18} color="#FFF" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.pickerType, { color: themeColors.textSecondary }]}>
+                        {t(`result.types.${item.type}`)}
+                      </Text>
+                      <Text
+                        style={[styles.pickerData, { color: themeColors.text }]}
+                        numberOfLines={2}
+                      >
+                        {item.raw}
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color={themeColors.textTertiary} />
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -371,4 +512,67 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.25)',
   },
   galleryBtnText: { color: '#FFF', fontSize: 16, fontWeight: '500' },
+
+  collectedBadge: {
+    position: 'absolute',
+    top: 110,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,122,255,0.85)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    zIndex: 10,
+    gap: 6,
+  },
+  collectedBadgeText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  pickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  pickerCard: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 34,
+    maxHeight: '65%',
+  },
+  pickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  pickerTitle: { fontSize: 17, fontWeight: '600' },
+  pickerSubtitle: {
+    fontSize: 13,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  pickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  pickerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  pickerType: { fontSize: 11, fontWeight: '500', textTransform: 'uppercase', marginBottom: 2 },
+  pickerData: { fontSize: 15 },
 });
