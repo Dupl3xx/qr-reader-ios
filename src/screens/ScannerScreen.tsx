@@ -149,18 +149,21 @@ export default function ScannerScreen() {
 
     // Multi-scan mode — collect codes for 1.5 seconds
     const key = result.data;
-    if (!collectedRef.current.has(key)) {
+    const isNew = !collectedRef.current.has(key);
+    if (isNew) {
       collectedRef.current.set(key, parsed);
       setCollectedCodes(new Map(collectedRef.current));
     }
 
-    // Reset timer each time a new code is detected
-    if (collectTimerRef.current) clearTimeout(collectTimerRef.current);
-    collectTimerRef.current = setTimeout(() => {
-      setScanning(false);
-      setIsProcessing(true);
-      finishMultiScan();
-    }, 1500);
+    // Only reset timer when a NEW code is found; start timer on first code
+    if (isNew) {
+      if (collectTimerRef.current) clearTimeout(collectTimerRef.current);
+      collectTimerRef.current = setTimeout(() => {
+        setScanning(false);
+        setIsProcessing(true);
+        finishMultiScan();
+      }, 1500);
+    }
   }, [scanning, isProcessing, navigation, finishMultiScan]);
 
   const pickFromGallery = async () => {
