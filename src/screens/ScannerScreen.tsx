@@ -49,6 +49,7 @@ export default function ScannerScreen() {
   const [multiPickerCodes, setMultiPickerCodes] = useState<ParsedQR[]>([]);
   const collectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const collectedRef = useRef<Map<string, ParsedQR>>(new Map());
+  const settingsRef = useRef<Awaited<ReturnType<typeof getSettings>> | null>(null);
   const { scheme } = useTheme();
   const themeColors = Colors[scheme];
   const scanLineAnim = useRef(new Animated.Value(0)).current;
@@ -80,6 +81,7 @@ export default function ScannerScreen() {
       setScanning(true);
       setIsProcessing(false);
       collectedRef.current = new Map();
+      settingsRef.current = null;
       setCollectedCodes(new Map());
       setMultiPickerVisible(false);
       setMultiPickerCodes([]);
@@ -92,47 +94,47 @@ export default function ScannerScreen() {
 
   const finishMultiScan = useCallback(async () => {
     const codes = Array.from(collectedRef.current.values());
-    collectedRef.current = new Map();
     if (codes.length === 0) return;
 
-    const settings = await getSettings();
+    const settings = settingsRef.current ?? await getSettings();
+
+    if (settings.haptics) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
 
     if (codes.length === 1) {
       // Single code — normal behavior
-      if (settings.haptics) {
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
       if (settings.saveHistory) await addToHistory(codes[0]);
       navigation.navigate('Result', { parsedQR: codes[0] });
       return;
     }
 
     // Multiple codes found
-    if (settings.haptics) {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-
     if (settings.multiScanMode === 'all') {
       // Save all to history and show first one
       if (settings.saveHistory) {
         for (const code of codes) await addToHistory(code);
       }
       navigation.navigate('Result', { parsedQR: codes[0] });
-    } else if (settings.multiScanMode === 'choose') {
-      // Show picker
+    } else {
+      // 'choose' mode — show picker
       setMultiPickerCodes(codes);
       setMultiPickerVisible(true);
-    } else {
-      // 'single' — just use the first one
-      if (settings.saveHistory) await addToHistory(codes[0]);
-      navigation.navigate('Result', { parsedQR: codes[0] });
     }
   }, [navigation]);
 
   const handleBarCodeScanned = useCallback(async (result: BarcodeScanningResult) => {
     if (!scanning || isProcessing) return;
 
-    const settings = await getSettings();
+    // Skip already-collected codes immediately (no async, no parsing)
+    const key = result.data;
+    if (collectedRef.current.has(key)) return;
+
+    // Cache settings so we don't call AsyncStorage every frame
+    if (!settingsRef.current) {
+      settingsRef.current = await getSettings();
+    }
+    const settings = settingsRef.current;
     const parsed = parseQR(result.data, result.type);
 
     if (settings.multiScanMode === 'single') {
@@ -147,23 +149,17 @@ export default function ScannerScreen() {
       return;
     }
 
-    // Multi-scan mode — collect codes for 1.5 seconds
-    const key = result.data;
-    const isNew = !collectedRef.current.has(key);
-    if (isNew) {
-      collectedRef.current.set(key, parsed);
-      setCollectedCodes(new Map(collectedRef.current));
-    }
+    // Multi-scan mode — collect new code
+    collectedRef.current.set(key, parsed);
+    setCollectedCodes(new Map(collectedRef.current));
 
-    // Only reset timer when a NEW code is found; start timer on first code
-    if (isNew) {
-      if (collectTimerRef.current) clearTimeout(collectTimerRef.current);
-      collectTimerRef.current = setTimeout(() => {
-        setScanning(false);
-        setIsProcessing(true);
-        finishMultiScan();
-      }, 1500);
-    }
+    // Reset timer on each new code — gives 1.5s after the last new code
+    if (collectTimerRef.current) clearTimeout(collectTimerRef.current);
+    collectTimerRef.current = setTimeout(() => {
+      setScanning(false);
+      setIsProcessing(true);
+      finishMultiScan();
+    }, 1500);
   }, [scanning, isProcessing, navigation, finishMultiScan]);
 
   const pickFromGallery = async () => {
