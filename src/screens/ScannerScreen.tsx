@@ -362,7 +362,7 @@ export default function ScannerScreen() {
               data={multiPickerCodes}
               keyExtractor={(item, idx) => item.raw + idx}
               renderItem={({ item }) => {
-                const typeColor = getTypeColor(item.type);
+                const typeColor = getTypeColor(item.type, themeColors);
                 const typeIcon = getTypeIcon(item.type);
                 return (
                   <TouchableOpacity

@@ -30,7 +30,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       ? resolveScheme(systemScheme)
       : darkMode
       ? 'dark'
-      : resolveScheme(systemScheme);
+      : 'light';
 
   return (
     <ThemeContext.Provider value={{ scheme, darkModeEnabled: darkMode ?? false, setDarkMode }}>

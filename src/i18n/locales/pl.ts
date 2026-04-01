@@ -45,6 +45,15 @@ export default {
       unknown: 'Nieznany',
     },
 
+    meta: {
+      ssid: 'SSID',
+      password: 'Hasło',
+      security: 'Zabezpieczenia',
+      phone: 'Telefon',
+      email: 'E-mail',
+      raw: 'Surowe dane',
+    },
+
     openEmail: 'Otwórz e-mail',
     callPhone: 'Zadzwoń',
     sendSms: 'Wyślij SMS',
@@ -90,6 +99,7 @@ export default {
     multiScanFound: 'znalezionych kodów',
     multiScanSaved: 'Wszystkie kody zapisane w historii',
     multiScanSelect: 'Wybierz kod',
+    behavior: 'Zachowanie',
     about: 'O aplikacji',
     version: 'Wersja',
     privacy: 'Polityka prywatności',

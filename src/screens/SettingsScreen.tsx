@@ -86,7 +86,7 @@ export default function SettingsScreen() {
       </View>
 
       {/* Behavior */}
-      <SectionHeader title="Behavior" colors={colors} />
+      <SectionHeader title={t('settings.behavior')} colors={colors} />
       <View style={[styles.card, { backgroundColor: colors.card }]}>
         <SettingRow
           label={t('settings.hapticsFeedback')}

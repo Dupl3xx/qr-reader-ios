@@ -60,9 +60,7 @@ export default function ResultScreen() {
       handleCopy();
       return;
     }
-    Linking.openURL(parsedQR.action).catch(() => {
-      Linking.openSettings();
-    });
+    Linking.openURL(parsedQR.action).catch(() => {});
   };
 
   const getPrimaryActionLabel = () => {
@@ -117,13 +115,13 @@ export default function ResultScreen() {
           {parsedQR.type === 'wifi' && parsedQR.metadata && (
             <View style={[styles.metaBox, { backgroundColor: colors.cardSecondary }]}>
               {parsedQR.metadata.ssid && (
-                <MetaRow label="SSID" value={parsedQR.metadata.ssid} colors={colors} />
+                <MetaRow label={t('result.meta.ssid')} value={parsedQR.metadata.ssid} colors={colors} />
               )}
               {parsedQR.metadata.password && (
-                <MetaRow label="Password" value={parsedQR.metadata.password} colors={colors} />
+                <MetaRow label={t('result.meta.password')} value={parsedQR.metadata.password} colors={colors} />
               )}
               {parsedQR.metadata.security && (
-                <MetaRow label="Security" value={parsedQR.metadata.security} colors={colors} />
+                <MetaRow label={t('result.meta.security')} value={parsedQR.metadata.security} colors={colors} />
               )}
             </View>
           )}
@@ -132,10 +130,10 @@ export default function ResultScreen() {
           {parsedQR.type === 'vcard' && parsedQR.metadata && (
             <View style={[styles.metaBox, { backgroundColor: colors.cardSecondary }]}>
               {parsedQR.metadata.phone && (
-                <MetaRow label="Phone" value={parsedQR.metadata.phone} colors={colors} />
+                <MetaRow label={t('result.meta.phone')} value={parsedQR.metadata.phone} colors={colors} />
               )}
               {parsedQR.metadata.email && (
-                <MetaRow label="Email" value={parsedQR.metadata.email} colors={colors} />
+                <MetaRow label={t('result.meta.email')} value={parsedQR.metadata.email} colors={colors} />
               )}
             </View>
           )}
@@ -144,7 +142,7 @@ export default function ResultScreen() {
         {/* Raw value */}
         {parsedQR.display !== parsedQR.raw && (
           <View style={[styles.card, { backgroundColor: colors.card }]}>
-            <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Raw</Text>
+            <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{t('result.meta.raw')}</Text>
             <Text style={[styles.rawText, { color: colors.textSecondary }]} selectable numberOfLines={4}>
               {parsedQR.raw}
             </Text>

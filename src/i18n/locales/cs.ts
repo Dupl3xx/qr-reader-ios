@@ -49,6 +49,15 @@ export default {
       unknown: 'Neznámý',
     },
 
+    meta: {
+      ssid: 'SSID',
+      password: 'Heslo',
+      security: 'Zabezpečení',
+      phone: 'Telefon',
+      email: 'E-mail',
+      raw: 'Surová data',
+    },
+
     // Actions
     openEmail: 'Otevřít e-mail',
     callPhone: 'Zavolat',
@@ -97,6 +106,7 @@ export default {
     multiScanFound: 'nalezených kódů',
     multiScanSaved: 'Všechny kódy uloženy do historie',
     multiScanSelect: 'Vyberte kód',
+    behavior: 'Chování',
     about: 'O aplikaci',
     version: 'Verze',
     privacy: 'Zásady ochrany soukromí',
